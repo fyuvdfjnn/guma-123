@@ -3,8 +3,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View, Dimensions, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { usePhonePreviewScale } from '@/components/usePhonePreviewScale';
 
 const DESIGN_WIDTH = 393;
 const DESIGN_HEIGHT = 852;
@@ -30,12 +31,7 @@ export default function SettingsScreen() {
   const { backTo } = useLocalSearchParams<{ backTo?: string }>();
   const previewWidth = DESIGN_WIDTH + PHONE_BEZEL * 2;
   const previewHeight = DESIGN_HEIGHT + PHONE_BEZEL * 2;
-  const fallbackWindow = Dimensions.get('window');
-  const viewportWidth = width > 24 ? width : fallbackWindow.width;
-  const viewportHeight = height > 24 ? height : fallbackWindow.height;
-  const widthScale = viewportWidth > 24 ? (viewportWidth - 24) / previewWidth : 1;
-  const heightScale = viewportHeight > 24 ? (viewportHeight - 24) / previewHeight : 1;
-  const scale = 1;
+  const scale = usePhonePreviewScale(width, height, previewWidth, previewHeight);
 
   return (
     <View style={styles.root}>

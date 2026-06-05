@@ -2,8 +2,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Dimensions, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { usePhonePreviewScale } from '@/components/usePhonePreviewScale';
 
 const DESIGN_WIDTH = 393;
 const DESIGN_HEIGHT = 852;
@@ -13,12 +14,7 @@ export default function DesignStudioOfferScreen() {
   const { width, height } = useWindowDimensions();
   const previewWidth = DESIGN_WIDTH + PHONE_BEZEL * 2;
   const previewHeight = DESIGN_HEIGHT + PHONE_BEZEL * 2;
-  const fallbackWindow = Dimensions.get('window');
-  const viewportWidth = width > 24 ? width : fallbackWindow.width;
-  const viewportHeight = height > 24 ? height : fallbackWindow.height;
-  const widthScale = viewportWidth > 24 ? (viewportWidth - 24) / previewWidth : 1;
-  const heightScale = viewportHeight > 24 ? (viewportHeight - 24) / previewHeight : 1;
-  const scale = 1;
+  const scale = usePhonePreviewScale(width, height, previewWidth, previewHeight);
 
   return (
     <View style={styles.root}>

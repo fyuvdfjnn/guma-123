@@ -2,9 +2,10 @@ import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Dimensions, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { ImageBackground, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { usePhonePreviewScale } from '@/components/usePhonePreviewScale';
 
 const DESIGN_WIDTH = 393;
 const DESIGN_HEIGHT = 852;
@@ -19,12 +20,7 @@ export default function TikTokPublishScreen() {
   const [isSentModalVisible, setIsSentModalVisible] = useState(false);
   const previewWidth = DESIGN_WIDTH + PHONE_BEZEL * 2;
   const previewHeight = DESIGN_HEIGHT + PHONE_BEZEL * 2;
-  const fallbackWindow = Dimensions.get('window');
-  const viewportWidth = width > 24 ? width : fallbackWindow.width;
-  const viewportHeight = height > 24 ? height : fallbackWindow.height;
-  const widthScale = viewportWidth > 24 ? (viewportWidth - 24) / previewWidth : 1;
-  const heightScale = viewportHeight > 24 ? (viewportHeight - 24) / previewHeight : 1;
-  const scale = 1;
+  const scale = usePhonePreviewScale(width, height, previewWidth, previewHeight);
   const imageUri = typeof image === 'string' ? image : FALLBACK_IMAGE;
 
   return (
