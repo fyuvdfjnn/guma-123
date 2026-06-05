@@ -2,7 +2,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,6 +16,7 @@ const socialRows = [
 ] as const;
 
 const settingRows = [
+  { label: '填写邀请码（可选）' },
   { label: '用户协议' },
   { label: '区域切换', value: '欧美区' },
   { label: '隐私政策' },
@@ -26,6 +27,7 @@ const settingRows = [
 
 export default function SettingsScreen() {
   const { width, height } = useWindowDimensions();
+  const { backTo } = useLocalSearchParams<{ backTo?: string }>();
   const previewWidth = DESIGN_WIDTH + PHONE_BEZEL * 2;
   const previewHeight = DESIGN_HEIGHT + PHONE_BEZEL * 2;
   const scale = Math.min((width - 24) / previewWidth, (height - 24) / previewHeight, 1);
@@ -57,7 +59,7 @@ export default function SettingsScreen() {
 
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
                 <View style={styles.header}>
-                  <Pressable style={styles.backButton} onPress={() => router.back()}>
+                  <Pressable style={styles.backButton} onPress={() => (backTo === '/' ? router.replace('/') : router.back())}>
                     <Feather name="chevron-left" size={42} color="#FFFFFF" />
                   </Pressable>
                   <Text style={styles.title}>设置</Text>
@@ -65,7 +67,7 @@ export default function SettingsScreen() {
                 </View>
 
                 <ProCard />
-                <ShareRewardEntry returnToSubmit />
+                <ShareRewardEntry />
 
                 <View style={styles.list}>
                   {socialRows.map((row) => (
@@ -83,7 +85,12 @@ export default function SettingsScreen() {
                   </View>
 
                   {settingRows.map((row) => (
-                    <SettingsRow key={row.label} label={row.label} value={'value' in row ? row.value : undefined} />
+                    <SettingsRow
+                      key={row.label}
+                      label={row.label}
+                      value={'value' in row ? row.value : undefined}
+                      onPress={row.label === '填写邀请码（可选）' ? () => router.push('/referral-code') : undefined}
+                    />
                   ))}
                 </View>
 
@@ -133,9 +140,9 @@ function ProCard() {
   );
 }
 
-function ShareRewardEntry({ returnToSubmit = false }: { returnToSubmit?: boolean }) {
+function ShareRewardEntry() {
   return (
-    <Pressable style={styles.shareEntry} onPress={() => router.push({ pathname: '/campaign', params: { variant: '1', ...(returnToSubmit ? { scrollTo: 'submit' } : {}) } })}>
+    <Pressable style={styles.shareEntry} onPress={() => router.push({ pathname: '/campaign', params: { variant: '1' } })}>
       <LinearGradient colors={['#6EF2E8', '#B99BFF', '#FF8AE6']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={StyleSheet.absoluteFill} />
       <View style={styles.shareEntryGrid} />
       <View style={styles.shareEntryTextWrap}>
@@ -152,9 +159,9 @@ function ShareRewardEntry({ returnToSubmit = false }: { returnToSubmit?: boolean
   );
 }
 
-function SettingsRow({ label, value, iconType }: { label: string; value?: string; iconType?: 'instagram' | 'tiktok' }) {
+function SettingsRow({ label, value, iconType, onPress }: { label: string; value?: string; iconType?: 'instagram' | 'tiktok'; onPress?: () => void }) {
   return (
-    <Pressable style={styles.row}>
+    <Pressable style={styles.row} onPress={onPress}>
       <View style={styles.rowLeft}>
         {iconType === 'instagram' && <InstagramIcon />}
         {iconType === 'tiktok' && <TikTokIcon />}

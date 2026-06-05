@@ -100,7 +100,7 @@ function BottomTabBar() {
   return (
     <View style={styles.bottomBar}>
       <TabItem icon="home-variant-outline" label="首页" onPress={() => router.push('/')} />
-      <TabItem icon="shopping-outline" label="设计室" />
+      <TabItem icon="shopping-outline" label="设计室" onPress={() => router.push('/design-studio-offer')} />
       <View style={styles.activeTab}>
         <MaterialCommunityIcons name="seal-variant" size={32} color="#FFFFFF" />
         <Text style={styles.activeText}>精选</Text>

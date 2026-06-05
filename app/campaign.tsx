@@ -14,8 +14,7 @@ const PHONE_BEZEL = 14;
 type Variant = '1' | '2' | '3';
 
 const submitRules = [
-  '作品需在活动期间内发布，逾期无效。',
-  '可在多个平台发布内容（如 TikTok、Instagram），每个平台符合要求的作品都可获得一份奖励。',
+  '可在多个平台发布内容（如TikTok、Instagram，YouTube），每个平台符合要求的作品都可获得一份奖励。',
   '单条作品点赞或浏览量达到指定数量，可获得额外奖励。请联系客服领取。',
   '未通过审核的作品可根据要求修改后重新提交。',
   '提交的内容将在3个工作日内完成审核。',
@@ -103,10 +102,26 @@ function FloatingSocialIcons() {
   );
 }
 
+function CampaignTopBar({ dark = false, hasRecord = false, hasLikeRecord = false }: { dark?: boolean; hasRecord?: boolean; hasLikeRecord?: boolean }) {
+  return (
+    <View style={styles.campaignTopBar}>
+      <Pressable style={[styles.campaignBackButton, dark && styles.campaignBackButtonLight]} onPress={closeCampaignToSettings}>
+        <Feather name="chevron-left" size={34} color={dark ? '#232333' : '#FFFFFF'} />
+      </Pressable>
+      <Pressable style={styles.claimRecordButton} onPress={() => router.push({ pathname: '/claim-record', params: { hasRecord: hasRecord ? '1' : '0', hasLikeRecord: hasLikeRecord ? '1' : '0' } })}>
+        <Text style={[styles.claimRecordText, dark && styles.claimRecordTextDark]}>活动记录</Text>
+      </Pressable>
+    </View>
+  );
+}
+
 function RewardImpactVariant({ scrollTo, confirm }: { scrollTo?: string; confirm?: string }) {
   const scrollRef = useRef<ScrollViewType>(null);
   const [publishRewardSubmitted, setPublishRewardSubmitted] = useState(false);
   const [publishRewardClaimed, setPublishRewardClaimed] = useState(false);
+  const [likeRewardReviewing, setLikeRewardReviewing] = useState(false);
+  const [submitTarget, setSubmitTarget] = useState<'publish' | 'likes'>('publish');
+  const [hasClaimRecord, setHasClaimRecord] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(confirm === 'published');
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
@@ -137,6 +152,14 @@ function RewardImpactVariant({ scrollTo, confirm }: { scrollTo?: string; confirm
       return;
     }
 
+    setSubmitTarget('publish');
+    scrollToSubmit();
+  };
+
+  const handleLikeRewardPress = () => {
+    if (likeRewardReviewing) return;
+
+    setSubmitTarget('likes');
     scrollToSubmit();
   };
 
@@ -145,9 +168,7 @@ function RewardImpactVariant({ scrollTo, confirm }: { scrollTo?: string; confirm
       <FloatingSocialIcons />
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
         <PhoneStatus />
-        <Pressable style={styles.closePurple} onPress={closeCampaignToSettings}>
-          <Feather name="x" size={34} color="#FFFFFF" />
-        </Pressable>
+        <CampaignTopBar hasRecord={hasClaimRecord} hasLikeRecord={likeRewardReviewing} />
         <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={styles.impactContent}>
           <View style={styles.brandRow}>
             <Feather name="heart" size={25} color="#FFFFFF" />
@@ -155,9 +176,8 @@ function RewardImpactVariant({ scrollTo, confirm }: { scrollTo?: string; confirm
           </View>
 
           <View style={styles.heroBurst} />
-          <Text style={styles.heroTitle}>Share & Earn</Text>
-          <Text style={styles.moneyText}>$100</Text>
-          <Text style={styles.heroSubtitle}>Creator Reward</Text>
+          <Text style={styles.heroTitle}>一起瓜分{`\n`}   100万现金！</Text>
+          <Text style={styles.moneyText}>$1000,000</Text>
           <Text style={styles.moneyLeft}>✦</Text>
           <Text style={styles.moneyRight}>✧</Text>
           <StepBar steps={['分享作品', '发布社媒', '提交链接', '获取奖励']} />
@@ -165,12 +185,16 @@ function RewardImpactVariant({ scrollTo, confirm }: { scrollTo?: string; confirm
           <SectionRibbon text="活动奖励" />
           <View style={styles.rewardCardsRow}>
             <RewardCard tag="发布作品" image="🪙×300" button={publishRewardClaimed ? '已领取' : publishRewardSubmitted ? '领取' : '前往'} onPress={handlePublishRewardPress} disabled={publishRewardClaimed} />
-            <RewardCard tag="50 个赞" image="🎁" button="前往" onPress={scrollToSubmit} />
-            <RewardCard tag="100万播放" image="$100" button="联系我们" />
+            <RewardCard tag="50 个赞" image="💳x1" button={likeRewardReviewing ? '审核中' : '前往'} onPress={handleLikeRewardPress} disabled={likeRewardReviewing} />
+            <RewardCard tag="100万播放" image="$1000" button="联系我们" onPress={() => router.push('/email-account')} />
           </View>
 
           <SubmitLinkModule onSubmittingChange={setIsSubmitLoading} onSubmitted={() => {
-            setPublishRewardSubmitted(true);
+            if (submitTarget === 'likes') {
+              setLikeRewardReviewing(true);
+            } else {
+              setPublishRewardSubmitted(true);
+            }
             scrollToRewards();
           }} />
         </ScrollView>
@@ -179,6 +203,7 @@ function RewardImpactVariant({ scrollTo, confirm }: { scrollTo?: string; confirm
         {showClaimModal && <ClaimRewardModal onClose={() => {
           setShowClaimModal(false);
           setPublishRewardClaimed(true);
+          setHasClaimRecord(true);
         }} />}
         {showPublishConfirm && <PublishConfirmModal onConfirm={() => {
           setShowPublishConfirm(false);
@@ -194,17 +219,15 @@ function SoftGuideVariant() {
     <LinearGradient colors={['#C7BBFF', '#BBA7F4', '#B9A7F2']} style={styles.screen}>
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
         <PhoneStatus dark />
+        <CampaignTopBar dark />
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.softContent}>
           <View style={styles.softTop}>
-            <Pressable style={styles.lightClose} onPress={closeCampaignToSettings}>
-              <Feather name="x" size={34} color="#232333" />
-            </Pressable>
             <Text style={styles.recordText}>活动规则</Text>
           </View>
 
           <View style={styles.softMascot}>
             <Text style={styles.catEmoji}>🐱</Text>
-            <View style={styles.dollarBubble}><Text style={styles.dollarText}>$100</Text></View>
+            <View style={styles.dollarBubble}><Text style={styles.dollarText}>$1000</Text></View>
           </View>
           <Text style={styles.softTitle}>分享 Guma</Text>
           <Text style={styles.softReward}>获取<Text style={styles.pinkText}>100</Text>美元奖励!</Text>
@@ -244,9 +267,7 @@ function WorkFlowVariant() {
     <LinearGradient colors={['#160D2E', '#3A0A83', '#7D00FF']} style={styles.screen}>
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
         <PhoneStatus />
-        <Pressable style={styles.closePurple} onPress={closeCampaignToSettings}>
-          <Feather name="x" size={34} color="#FFFFFF" />
-        </Pressable>
+        <CampaignTopBar />
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.flowContent}>
           <Text style={styles.flowKicker}>Campaign Flow</Text>
           <Text style={styles.flowTitle}>从作品详情页分享</Text>
@@ -313,6 +334,20 @@ function RewardCard({ tag, image, button, onPress, disabled = false }: { tag: st
           <Text style={[styles.rewardButtonText, disabled && styles.rewardButtonTextDisabled]}>{button}</Text>
         </Pressable>
       )}
+    </View>
+  );
+}
+
+function ClaimRecordCard() {
+  return (
+    <View style={styles.claimRecordCard}>
+      <View style={styles.claimRecordIconWrap}>
+        <Feather name="dollar-sign" size={24} color="#03130B" />
+      </View>
+      <View style={styles.claimRecordInfo}>
+        <Text style={styles.claimRecordTitle}>发布作品奖励   🪙×300</Text>
+      </View>
+      <Text style={styles.claimRecordStatus}>已领取</Text>
     </View>
   );
 }
@@ -449,7 +484,7 @@ function SubmitLinkModule({ onSubmitted, onSubmittingChange }: { onSubmitted?: (
         <TextInput
           value={workLink}
           onChangeText={setWorkLink}
-          placeholder="粘贴 TikTok / Instagram 作品链接"
+          placeholder="粘贴作品链接"
           placeholderTextColor="#8A8A96"
           style={styles.submitInput}
         />
@@ -574,6 +609,25 @@ const styles = StyleSheet.create({
   batteryText: { color: '#6D00FF', fontSize: 16, fontWeight: '900' },
   batteryTextDark: { color: '#FFFFFF' },
   closePurple: { position: 'absolute', top: 57, right: 18, width: 58, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(3,20,13,0.68)', borderWidth: 1, borderColor: 'rgba(130,255,184,0.18)', zIndex: 10 },
+  campaignTopBar: { height: 66, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  campaignBackButton: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(3,20,13,0.68)', borderWidth: 1, borderColor: 'rgba(130,255,184,0.18)' },
+  campaignBackButtonLight: { backgroundColor: 'rgba(255,255,255,0.86)', borderColor: 'rgba(35,35,51,0.12)' },
+  claimRecordText: { color: '#E8FFF2', fontSize: 18, fontWeight: '900' },
+  claimRecordTextDark: { color: '#232333' },
+  claimRecordButton: { minWidth: 86, height: 44, alignItems: 'flex-end', justifyContent: 'center' },
+  claimRecordOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, zIndex: 31, backgroundColor: 'rgba(0,0,0,0.68)', justifyContent: 'flex-start', paddingTop: 98, paddingHorizontal: 16 },
+  claimRecordPanel: { borderRadius: 28, padding: 16, backgroundColor: '#07100C', borderWidth: 1, borderColor: 'rgba(65,247,211,0.46)', shadowColor: '#41F7D3', shadowOpacity: 0.28, shadowRadius: 18, shadowOffset: { width: 0, height: 10 } },
+  claimRecordHeader: { height: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  claimRecordPanelTitle: { color: '#E8FFF2', fontSize: 22, fontWeight: '900' },
+  claimRecordClose: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
+  claimRecordEmpty: { height: 86, borderRadius: 20, backgroundColor: 'rgba(236,255,244,0.08)', alignItems: 'center', justifyContent: 'center' },
+  claimRecordEmptyText: { color: '#B4FFD4', fontSize: 17, fontWeight: '800' },
+  claimRecordCard: { marginTop: 12, minHeight: 74, borderRadius: 22, paddingHorizontal: 16, paddingVertical: 13, backgroundColor: 'rgba(236,255,244,0.96)', borderWidth: 1, borderColor: 'rgba(65,247,211,0.5)', flexDirection: 'row', alignItems: 'center', shadowColor: '#41F7D3', shadowOpacity: 0.22, shadowRadius: 13, shadowOffset: { width: 0, height: 7 } },
+  claimRecordIconWrap: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#8AFFB8', alignItems: 'center', justifyContent: 'center' },
+  claimRecordInfo: { flex: 1, marginLeft: 12 },
+  claimRecordTitle: { color: '#04110B', fontSize: 17, fontWeight: '900' },
+  claimRecordDesc: { marginTop: 4, color: '#0A8F46', fontSize: 14, fontWeight: '800' },
+  claimRecordStatus: { color: '#B05AC9', fontSize: 14, fontWeight: '900' },
   impactContent: { paddingHorizontal: 16, paddingBottom: 175 },
   brandRow: { alignSelf: 'center', marginTop: 0, flexDirection: 'row', alignItems: 'center', gap: 7 },
   brandText: { color: '#E8FFF2', fontSize: 20, fontWeight: '900' },
@@ -584,7 +638,7 @@ const styles = StyleSheet.create({
   floatInstagramTwo: { top: 532, left: 24, width: 34, height: 34, borderRadius: 17, transform: [{ rotate: '-10deg' }] },
   heroBurst: { position: 'absolute', top: 48, left: 62, width: 268, height: 268, borderRadius: 150, backgroundColor: 'rgba(42,255,139,0.13)' },
   heroTitle: { marginTop: 42, textAlign: 'center', color: '#E8FFF2', fontSize: 39, fontWeight: '900' },
-  moneyText: { marginTop: 5, textAlign: 'center', color: '#94FF39', fontSize: 68, lineHeight: 76, fontWeight: '900', textShadowColor: 'rgba(84,255,147,0.45)', textShadowRadius: 18 },
+  moneyText: { marginTop: 5, textAlign: 'center', color: '#94FF39', fontSize: 54, lineHeight: 62, fontWeight: '900', textShadowColor: 'rgba(84,255,147,0.45)', textShadowRadius: 18 },
   heroSubtitle: { textAlign: 'center', color: '#FFFFFF', fontSize: 34, fontWeight: '900' },
   heroDesc: { marginTop: 9, textAlign: 'center', color: '#FFFFFF', fontSize: 17, fontWeight: '700' },
   moneyLeft: { position: 'absolute', top: 83, left: -8, color: '#8AFFB8', fontSize: 45, transform: [{ rotate: '-16deg' }] },
@@ -597,7 +651,7 @@ const styles = StyleSheet.create({
   rewardCard: { width: 101, height: 116, borderRadius: 18, backgroundColor: 'rgba(237,255,245,0.96)', alignItems: 'center', paddingTop: 13, shadowColor: '#27FF8A', shadowOpacity: 0.24, shadowRadius: 12, shadowOffset: { width: 0, height: 6 } },
   rewardTag: { position: 'absolute', top: -12, alignSelf: 'center', paddingHorizontal: 8, height: 25, borderRadius: 13, backgroundColor: '#39EF83', color: '#03130B', fontSize: 13, fontWeight: '900', lineHeight: 25 },
   rewardImage: { width: 76, height: 58, borderRadius: 14, backgroundColor: '#D7FFE5', alignItems: 'center', justifyContent: 'center' },
-  rewardImageText: { color: '#0A8F46', fontSize: 20, fontWeight: '900' },
+  rewardImageText: { color: '#0A8F46', fontSize: 28, fontWeight: '900' },
   rewardButton: { marginTop: 8, width: 76, height: 28, borderRadius: 14, backgroundColor: '#05130D', alignItems: 'center', justifyContent: 'center' },
   rewardButtonDisabled: { backgroundColor: '#8C948F' },
   rewardButtonText: { color: '#8AFFB8', fontSize: 13, fontWeight: '900' },
@@ -621,14 +675,14 @@ const styles = StyleSheet.create({
   claimConfettiTwo: { top: 245, right: 43, color: '#F8A3FF', fontSize: 32 },
   claimConfettiThree: { bottom: 156, left: 70, transform: [{ rotate: '5deg' }] },
   claimConfettiFour: { bottom: 96, right: 54, color: '#8AFFB8', transform: [{ rotate: '-32deg' }] },
-  publishConfirmOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, zIndex: 32, backgroundColor: 'rgba(0,0,0,0.72)', alignItems: 'center', justifyContent: 'center' },
-  publishConfirmCard: { width: 318, borderRadius: 36, paddingTop: 38, paddingBottom: 28, paddingHorizontal: 28, backgroundColor: '#07100C', borderWidth: 1, borderColor: 'rgba(65,247,211,0.46)', alignItems: 'center', shadowColor: '#F8A3FF', shadowOpacity: 0.32, shadowRadius: 22, shadowOffset: { width: 0, height: 12 }, overflow: 'hidden' },
-  publishConfirmTopLine: { position: 'absolute', top: 0, left: 0, right: 0, height: 7 },
-  publishConfirmTitle: { marginTop: 24, marginBottom: 34, color: '#EFFFF5', fontSize: 24, lineHeight: 32, fontWeight: '900', textAlign: 'center' },
-  publishConfirmPrimary: { width: 242, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center', shadowColor: '#41F7D3', shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 7 } },
-  publishConfirmPrimaryText: { color: '#03130B', fontSize: 24, fontWeight: '900' },
-  publishConfirmSecondary: { width: 242, height: 58, marginTop: 16, borderRadius: 29, backgroundColor: 'rgba(236,255,244,0.1)', borderWidth: 1, borderColor: 'rgba(248,163,255,0.5)', alignItems: 'center', justifyContent: 'center' },
-  publishConfirmSecondaryText: { color: '#F8A3FF', fontSize: 22, fontWeight: '900' },
+  publishConfirmOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, zIndex: 32, backgroundColor: 'rgba(12,10,22,0.58)', alignItems: 'center', justifyContent: 'center' },
+  publishConfirmCard: { width: 223, borderRadius: 25, paddingTop: 27, paddingBottom: 20, paddingHorizontal: 20, backgroundColor: '#F6FEFF', borderWidth: 1, borderColor: 'rgba(65,247,211,0.58)', alignItems: 'center', shadowColor: '#F8A3FF', shadowOpacity: 0.34, shadowRadius: 24, shadowOffset: { width: 0, height: 12 }, overflow: 'hidden' },
+  publishConfirmTopLine: { position: 'absolute', top: 0, left: 0, right: 0, height: 6 },
+  publishConfirmTitle: { marginTop: 17, marginBottom: 24, color: '#7E4E91', fontSize: 17, lineHeight: 23, fontWeight: '900', textAlign: 'center' },
+  publishConfirmPrimary: { width: 169, height: 41, borderRadius: 21, alignItems: 'center', justifyContent: 'center', shadowColor: '#41F7D3', shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 7 } },
+  publishConfirmPrimaryText: { color: '#FFFFFF', fontSize: 17, fontWeight: '900' },
+  publishConfirmSecondary: { width: 169, height: 41, marginTop: 11, borderRadius: 21, backgroundColor: '#EFFFFF', borderWidth: 1, borderColor: 'rgba(248,163,255,0.56)', alignItems: 'center', justifyContent: 'center' },
+  publishConfirmSecondaryText: { color: '#B05AC9', fontSize: 15, fontWeight: '900' },
   stepBar: { height: 42, marginTop: 18, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   stepBarText: { color: '#5B2B62', fontSize: 15.5, fontWeight: '900' },
   submitLinkCard: { marginTop: 24, borderRadius: 24, padding: 16, backgroundColor: 'rgba(236,255,244,0.96)' },

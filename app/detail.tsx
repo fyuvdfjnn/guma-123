@@ -1,7 +1,7 @@
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ImageBackground, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ImageBackground, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -124,13 +124,12 @@ function ShareSheet({ onClose }: { onClose: () => void }) {
           <Feather name="x" size={23} color="#FFFFFF" />
         </Pressable>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.shareSheetScroller}>
+      <View style={styles.shareSheetScroller}>
         <SharePlatform icon={<MaterialCommunityIcons name="music-note-eighth" size={31} color="#FFFFFF" />} label="TikTok" style={styles.tiktokPlatformIcon} onPress={() => router.push({ pathname: '/tiktok-preview', params: { image: FALLBACK_IMAGE } })} />
         <SharePlatform icon={<Feather name="instagram" size={29} color="#FFFFFF" />} label="Instagram" style={styles.instagramPlatformIcon} />
+        <SharePlatform icon={<Feather name="youtube" size={31} color="#FFFFFF" />} label="YouTube" style={styles.youtubePlatformIcon} />
         <SharePlatform icon={<Text style={styles.xPlatformText}>𝕏</Text>} label="X" style={styles.xPlatformIcon} />
-        <SharePlatform icon={<Feather name="facebook" size={30} color="#FFFFFF" />} label="Facebook" style={styles.facebookPlatformIcon} />
-        <SharePlatform icon={<MaterialCommunityIcons name="whatsapp" size={31} color="#FFFFFF" />} label="WhatsApp" style={styles.whatsappPlatformIcon} />
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -410,11 +409,11 @@ const styles = StyleSheet.create({
   },
   shareSheetScroller: {
     paddingTop: 23,
-    paddingRight: 0,
-    gap: 11,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   sharePlatform: {
-    width: 68,
+    width: 76,
     alignItems: 'center',
   },
   sharePlatformIcon: {
@@ -432,14 +431,11 @@ const styles = StyleSheet.create({
   instagramPlatformIcon: {
     backgroundColor: '#D83DBB',
   },
+  youtubePlatformIcon: {
+    backgroundColor: '#FF0033',
+  },
   xPlatformIcon: {
     backgroundColor: '#FFFFFF',
-  },
-  facebookPlatformIcon: {
-    backgroundColor: '#1877F2',
-  },
-  whatsappPlatformIcon: {
-    backgroundColor: '#25D366',
   },
   xPlatformText: {
     color: '#080912',

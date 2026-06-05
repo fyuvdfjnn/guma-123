@@ -50,10 +50,18 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="referral-code" options={{ headerShown: false }} />
+        <Stack.Screen name="secret-offer" options={{ headerShown: false }} />
+        <Stack.Screen name="design-studio-offer" options={{ headerShown: false }} />
+        <Stack.Screen name="home" options={{ headerShown: false }} />
         <Stack.Screen name="detail" options={{ headerShown: false }} />
         <Stack.Screen name="campaign" options={{ headerShown: false }} />
+        <Stack.Screen name="claim-record" options={{ headerShown: false }} />
         <Stack.Screen name="tiktok-preview" options={{ headerShown: false }} />
         <Stack.Screen name="tiktok-publish" options={{ headerShown: false }} />
+        <Stack.Screen name="email-account" options={{ headerShown: false }} />
+        <Stack.Screen name="google-auth" options={{ headerShown: false }} />
+        <Stack.Screen name="email-compose" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>

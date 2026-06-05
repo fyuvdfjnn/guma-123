@@ -154,10 +154,10 @@ function BottomTabBar() {
     <View style={styles.bottomWrapper}>
       <BlurView intensity={64} tint="dark" style={styles.bottomBlur}>
         <LinearGradient colors={['rgba(255,255,255,0.17)', 'rgba(255,255,255,0.05)']} style={styles.bottomGradient}>
-          <TabItem icon="home-variant-outline" label="首页" />
+          <TabItem icon="home-variant-outline" label="首页" onPress={() => router.push('/home')} />
           <View style={styles.tabWithBadge}>
             <View style={styles.newBadge}><Text style={styles.newBadgeText}>New</Text></View>
-            <TabItem icon="shopping-outline" label="设计室" />
+            <TabItem icon="shopping-outline" label="设计室" onPress={() => router.push('/design-studio-offer')} />
           </View>
           <TabItem icon="seal-variant" label="精选" size={34} onPress={() => router.push('/two')} />
           <Pressable style={styles.activeTab}>

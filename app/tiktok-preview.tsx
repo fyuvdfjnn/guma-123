@@ -65,7 +65,7 @@ export default function TikTokPreviewScreen() {
                     <Text style={styles.accountText}>indigo</Text>
                     <View style={styles.photoPill}><Ionicons name="albums" size={18} color="#FFFFFF" /><Text style={styles.photoPillText}>照片</Text></View>
                   </View>
-                  <Text numberOfLines={1} style={styles.hashText}>#Love8 异地恋保持甜蜜联系的最佳方...</Text>
+                  <Text numberOfLines={1} style={styles.hashText}>#guma #gumaai</Text>
                 </View>
               </ImageBackground>
 
