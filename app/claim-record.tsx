@@ -2,7 +2,7 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Dimensions, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const DESIGN_WIDTH = 393;
@@ -14,11 +14,10 @@ export default function ClaimRecordScreen() {
   const { hasRecord, hasLikeRecord } = useLocalSearchParams<{ hasRecord?: string; hasLikeRecord?: string }>();
   const previewWidth = DESIGN_WIDTH + PHONE_BEZEL * 2;
   const previewHeight = DESIGN_HEIGHT + PHONE_BEZEL * 2;
-  const fallbackWidth = typeof window !== 'undefined' ? window.innerWidth : width;
-  const fallbackHeight = typeof window !== 'undefined' ? window.innerHeight : height;
-  const viewportWidth = width > 24 ? width : fallbackWidth;
-  const viewportHeight = height > 24 ? height : fallbackHeight;
-  const scale = Math.min((viewportWidth - 24) / previewWidth, (viewportHeight - 24) / previewHeight, 1);
+  const fallbackWindow = Dimensions.get('window');
+  const viewportWidth = width > 24 ? width : fallbackWindow.width;
+  const viewportHeight = height > 24 ? height : fallbackWindow.height;
+  const scale = Math.min(Math.max((viewportWidth - 24) / previewWidth, 0.01), Math.max((viewportHeight - 24) / previewHeight, 0.01), 1);
   const showClaimRecord = hasRecord === '1';
   const showLikeRecord = hasLikeRecord === '1';
   const hasAnyRecord = showClaimRecord || showLikeRecord;
