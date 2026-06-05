@@ -125,7 +125,7 @@ function ShareSheet({ onClose }: { onClose: () => void }) {
         </Pressable>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.shareSheetScroller}>
-        <SharePlatform icon={<MaterialCommunityIcons name="music-note-eighth" size={31} color="#FFFFFF" />} label="TikTok" style={styles.tiktokPlatformIcon} />
+        <SharePlatform icon={<MaterialCommunityIcons name="music-note-eighth" size={31} color="#FFFFFF" />} label="TikTok" style={styles.tiktokPlatformIcon} onPress={() => router.push({ pathname: '/tiktok-preview', params: { image: FALLBACK_IMAGE } })} />
         <SharePlatform icon={<Feather name="instagram" size={29} color="#FFFFFF" />} label="Instagram" style={styles.instagramPlatformIcon} />
         <SharePlatform icon={<Text style={styles.xPlatformText}>𝕏</Text>} label="X" style={styles.xPlatformIcon} />
         <SharePlatform icon={<Feather name="facebook" size={30} color="#FFFFFF" />} label="Facebook" style={styles.facebookPlatformIcon} />
@@ -135,9 +135,9 @@ function ShareSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-function SharePlatform({ icon, label, style }: { icon: React.ReactNode; label: string; style: object }) {
+function SharePlatform({ icon, label, style, onPress }: { icon: React.ReactNode; label: string; style: object; onPress?: () => void }) {
   return (
-    <Pressable style={styles.sharePlatform}>
+    <Pressable style={styles.sharePlatform} onPress={onPress}>
       <View style={[styles.sharePlatformIcon, style]}>{icon}</View>
       <Text style={styles.sharePlatformLabel}>{label}</Text>
     </Pressable>

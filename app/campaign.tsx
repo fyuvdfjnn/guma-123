@@ -24,7 +24,7 @@ const submitRules = [
 
 export default function CampaignScreen() {
   const { width, height } = useWindowDimensions();
-  const { variant } = useLocalSearchParams<{ variant?: string }>();
+  const { variant, scrollTo, confirm } = useLocalSearchParams<{ variant?: string; scrollTo?: string; confirm?: string }>();
   const selected = (variant === '2' || variant === '3' ? variant : '1') as Variant;
   const previewWidth = DESIGN_WIDTH + PHONE_BEZEL * 2;
   const previewHeight = DESIGN_HEIGHT + PHONE_BEZEL * 2;
@@ -37,7 +37,7 @@ export default function CampaignScreen() {
         <View style={styles.phoneShell}>
           <View style={styles.speaker} />
           <View style={styles.phoneFrame}>
-            {selected === '1' && <RewardImpactVariant />}
+            {selected === '1' && <RewardImpactVariant scrollTo={typeof scrollTo === 'string' ? scrollTo : undefined} confirm={typeof confirm === 'string' ? confirm : undefined} />}
             {selected === '2' && <SoftGuideVariant />}
             {selected === '3' && <WorkFlowVariant />}
           </View>
@@ -60,8 +60,8 @@ function goToLatestWorkDetail() {
   });
 }
 
-function goToSettings() {
-  router.replace('/settings');
+function closeCampaignToSettings() {
+  router.replace({ pathname: '/settings', params: { backTo: '/' } });
 }
 
 function PhoneStatus({ dark = false }: { dark?: boolean }) {
@@ -103,11 +103,12 @@ function FloatingSocialIcons() {
   );
 }
 
-function RewardImpactVariant() {
+function RewardImpactVariant({ scrollTo, confirm }: { scrollTo?: string; confirm?: string }) {
   const scrollRef = useRef<ScrollViewType>(null);
   const [publishRewardSubmitted, setPublishRewardSubmitted] = useState(false);
   const [publishRewardClaimed, setPublishRewardClaimed] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
+  const [showPublishConfirm, setShowPublishConfirm] = useState(confirm === 'published');
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
 
   const scrollToRewards = () => {
@@ -117,6 +118,16 @@ function RewardImpactVariant() {
   const scrollToSubmit = () => {
     scrollRef.current?.scrollTo({ y: 485, animated: true });
   };
+
+  useEffect(() => {
+    if (scrollTo !== 'submit') return;
+
+    const timer = setTimeout(() => {
+      scrollToSubmit();
+    }, 120);
+
+    return () => clearTimeout(timer);
+  }, [scrollTo]);
 
   const handlePublishRewardPress = () => {
     if (publishRewardClaimed) return;
@@ -134,7 +145,7 @@ function RewardImpactVariant() {
       <FloatingSocialIcons />
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
         <PhoneStatus />
-        <Pressable style={styles.closePurple} onPress={goToSettings}>
+        <Pressable style={styles.closePurple} onPress={closeCampaignToSettings}>
           <Feather name="x" size={34} color="#FFFFFF" />
         </Pressable>
         <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={styles.impactContent}>
@@ -169,6 +180,10 @@ function RewardImpactVariant() {
           setShowClaimModal(false);
           setPublishRewardClaimed(true);
         }} />}
+        {showPublishConfirm && <PublishConfirmModal onConfirm={() => {
+          setShowPublishConfirm(false);
+          scrollToSubmit();
+        }} onCancel={() => setShowPublishConfirm(false)} />}
       </SafeAreaView>
     </LinearGradient>
   );
@@ -181,7 +196,7 @@ function SoftGuideVariant() {
         <PhoneStatus dark />
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.softContent}>
           <View style={styles.softTop}>
-            <Pressable style={styles.lightClose} onPress={goToSettings}>
+            <Pressable style={styles.lightClose} onPress={closeCampaignToSettings}>
               <Feather name="x" size={34} color="#232333" />
             </Pressable>
             <Text style={styles.recordText}>活动规则</Text>
@@ -229,7 +244,7 @@ function WorkFlowVariant() {
     <LinearGradient colors={['#160D2E', '#3A0A83', '#7D00FF']} style={styles.screen}>
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
         <PhoneStatus />
-        <Pressable style={styles.closePurple} onPress={goToSettings}>
+        <Pressable style={styles.closePurple} onPress={closeCampaignToSettings}>
           <Feather name="x" size={34} color="#FFFFFF" />
         </Pressable>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.flowContent}>
@@ -331,6 +346,25 @@ function ClaimRewardModal({ onClose }: { onClose: () => void }) {
             </LinearGradient>
           </Pressable>
         </View>
+      </View>
+    </View>
+  );
+}
+
+function PublishConfirmModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <View style={styles.publishConfirmOverlay}>
+      <View style={styles.publishConfirmCard}>
+        <LinearGradient colors={['#F8A3FF', '#41F7D3']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.publishConfirmTopLine} />
+        <Text style={styles.publishConfirmTitle}>你成功发布作品了吗?</Text>
+        <Pressable onPress={onConfirm}>
+          <LinearGradient colors={['#F8A3FF', '#41F7D3']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.publishConfirmPrimary}>
+            <Text style={styles.publishConfirmPrimaryText}>是的</Text>
+          </LinearGradient>
+        </Pressable>
+        <Pressable style={styles.publishConfirmSecondary} onPress={onCancel}>
+          <Text style={styles.publishConfirmSecondaryText}>稍后再说</Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -587,6 +621,14 @@ const styles = StyleSheet.create({
   claimConfettiTwo: { top: 245, right: 43, color: '#F8A3FF', fontSize: 32 },
   claimConfettiThree: { bottom: 156, left: 70, transform: [{ rotate: '5deg' }] },
   claimConfettiFour: { bottom: 96, right: 54, color: '#8AFFB8', transform: [{ rotate: '-32deg' }] },
+  publishConfirmOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, zIndex: 32, backgroundColor: 'rgba(0,0,0,0.72)', alignItems: 'center', justifyContent: 'center' },
+  publishConfirmCard: { width: 318, borderRadius: 36, paddingTop: 38, paddingBottom: 28, paddingHorizontal: 28, backgroundColor: '#07100C', borderWidth: 1, borderColor: 'rgba(65,247,211,0.46)', alignItems: 'center', shadowColor: '#F8A3FF', shadowOpacity: 0.32, shadowRadius: 22, shadowOffset: { width: 0, height: 12 }, overflow: 'hidden' },
+  publishConfirmTopLine: { position: 'absolute', top: 0, left: 0, right: 0, height: 7 },
+  publishConfirmTitle: { marginTop: 24, marginBottom: 34, color: '#EFFFF5', fontSize: 24, lineHeight: 32, fontWeight: '900', textAlign: 'center' },
+  publishConfirmPrimary: { width: 242, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center', shadowColor: '#41F7D3', shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 7 } },
+  publishConfirmPrimaryText: { color: '#03130B', fontSize: 24, fontWeight: '900' },
+  publishConfirmSecondary: { width: 242, height: 58, marginTop: 16, borderRadius: 29, backgroundColor: 'rgba(236,255,244,0.1)', borderWidth: 1, borderColor: 'rgba(248,163,255,0.5)', alignItems: 'center', justifyContent: 'center' },
+  publishConfirmSecondaryText: { color: '#F8A3FF', fontSize: 22, fontWeight: '900' },
   stepBar: { height: 42, marginTop: 18, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   stepBarText: { color: '#5B2B62', fontSize: 15.5, fontWeight: '900' },
   submitLinkCard: { marginTop: 24, borderRadius: 24, padding: 16, backgroundColor: 'rgba(236,255,244,0.96)' },

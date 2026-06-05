@@ -52,6 +52,8 @@ function RootLayoutNav() {
         <Stack.Screen name="settings" options={{ headerShown: false }} />
         <Stack.Screen name="detail" options={{ headerShown: false }} />
         <Stack.Screen name="campaign" options={{ headerShown: false }} />
+        <Stack.Screen name="tiktok-preview" options={{ headerShown: false }} />
+        <Stack.Screen name="tiktok-publish" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>

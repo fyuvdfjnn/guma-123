@@ -65,7 +65,7 @@ export default function SettingsScreen() {
                 </View>
 
                 <ProCard />
-                <ShareRewardEntry />
+                <ShareRewardEntry returnToSubmit />
 
                 <View style={styles.list}>
                   {socialRows.map((row) => (
@@ -133,9 +133,9 @@ function ProCard() {
   );
 }
 
-function ShareRewardEntry() {
+function ShareRewardEntry({ returnToSubmit = false }: { returnToSubmit?: boolean }) {
   return (
-    <Pressable style={styles.shareEntry} onPress={() => router.push({ pathname: '/campaign', params: { variant: '1' } })}>
+    <Pressable style={styles.shareEntry} onPress={() => router.push({ pathname: '/campaign', params: { variant: '1', ...(returnToSubmit ? { scrollTo: 'submit' } : {}) } })}>
       <LinearGradient colors={['#6EF2E8', '#B99BFF', '#FF8AE6']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={StyleSheet.absoluteFill} />
       <View style={styles.shareEntryGrid} />
       <View style={styles.shareEntryTextWrap}>
