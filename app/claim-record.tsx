@@ -14,7 +14,8 @@ export default function ClaimRecordScreen() {
   const { hasRecord, hasLikeRecord } = useLocalSearchParams<{ hasRecord?: string; hasLikeRecord?: string }>();
   const previewWidth = DESIGN_WIDTH + PHONE_BEZEL * 2;
   const previewHeight = DESIGN_HEIGHT + PHONE_BEZEL * 2;
-  const scale = Math.min((width - 24) / previewWidth, (height - 24) / previewHeight, 1);
+  const isReady = width > 24 && height > 24;
+  const scale = isReady ? Math.min((width - 24) / previewWidth, (height - 24) / previewHeight, 1) : 1;
   const showClaimRecord = hasRecord === '1';
   const showLikeRecord = hasLikeRecord === '1';
   const hasAnyRecord = showClaimRecord || showLikeRecord;
@@ -22,7 +23,7 @@ export default function ClaimRecordScreen() {
   return (
     <View style={styles.root}>
       <StatusBar style="dark" />
-      <View style={[styles.previewScaler, { width: previewWidth, height: previewHeight, transform: [{ scale }] }]}>
+      <View style={[styles.previewScaler, { width: previewWidth, height: previewHeight, opacity: isReady ? 1 : 0, transform: [{ scale }] }]}>
         <View style={styles.phoneShell}>
           <View style={styles.speaker} />
           <View style={styles.phoneFrame}>

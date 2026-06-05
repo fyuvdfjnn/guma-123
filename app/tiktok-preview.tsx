@@ -14,13 +14,14 @@ export default function TikTokPreviewScreen() {
   const { image } = useLocalSearchParams<{ image?: string }>();
   const previewWidth = DESIGN_WIDTH + PHONE_BEZEL * 2;
   const previewHeight = DESIGN_HEIGHT + PHONE_BEZEL * 2;
-  const scale = Math.min((width - 24) / previewWidth, (height - 24) / previewHeight, 1);
+  const isReady = width > 24 && height > 24;
+  const scale = isReady ? Math.min((width - 24) / previewWidth, (height - 24) / previewHeight, 1) : 1;
   const imageUri = typeof image === 'string' ? image : FALLBACK_IMAGE;
 
   return (
     <View style={styles.root}>
       <StatusBar style="light" />
-      <View style={[styles.previewScaler, { width: previewWidth, height: previewHeight, transform: [{ scale }] }]}>
+      <View style={[styles.previewScaler, { width: previewWidth, height: previewHeight, opacity: isReady ? 1 : 0, transform: [{ scale }] }]}>
         <View style={styles.phoneShell}>
           <View style={styles.speaker} />
           <View style={styles.phoneFrame}>
