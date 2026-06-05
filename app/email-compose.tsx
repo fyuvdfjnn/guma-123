@@ -12,13 +12,16 @@ export default function EmailComposeScreen() {
   const { width, height } = useWindowDimensions();
   const previewWidth = DESIGN_WIDTH + PHONE_BEZEL * 2;
   const previewHeight = DESIGN_HEIGHT + PHONE_BEZEL * 2;
-  const isReady = width > 24 && height > 24;
-  const scale = isReady ? Math.min((width - 24) / previewWidth, (height - 24) / previewHeight, 1) : 1;
+  const fallbackWidth = typeof window !== 'undefined' ? window.innerWidth : width;
+  const fallbackHeight = typeof window !== 'undefined' ? window.innerHeight : height;
+  const viewportWidth = width > 24 ? width : fallbackWidth;
+  const viewportHeight = height > 24 ? height : fallbackHeight;
+  const scale = Math.min((viewportWidth - 24) / previewWidth, (viewportHeight - 24) / previewHeight, 1);
 
   return (
     <View style={styles.root}>
       <StatusBar style="light" />
-      <View style={[styles.previewScaler, { width: previewWidth, height: previewHeight, opacity: isReady ? 1 : 0, transform: [{ scale }] }]}>
+      <View style={[styles.previewScaler, { width: previewWidth, height: previewHeight, transform: [{ scale }] }]}>
         <View style={styles.phoneShell}>
           <View style={styles.speaker} />
           <View style={styles.phoneFrame}>
