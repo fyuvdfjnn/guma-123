@@ -15,7 +15,9 @@ export default function EmailComposeScreen() {
   const fallbackWindow = Dimensions.get('window');
   const viewportWidth = width > 24 ? width : fallbackWindow.width;
   const viewportHeight = height > 24 ? height : fallbackWindow.height;
-  const scale = Math.min(Math.max((viewportWidth - 24) / previewWidth, 0.01), Math.max((viewportHeight - 24) / previewHeight, 0.01), 1);
+  const widthScale = viewportWidth > 24 ? (viewportWidth - 24) / previewWidth : 1;
+  const heightScale = viewportHeight > 24 ? (viewportHeight - 24) / previewHeight : 1;
+  const scale = 1;
 
   return (
     <View style={styles.root}>
