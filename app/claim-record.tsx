@@ -12,13 +12,14 @@ const PHONE_BEZEL = 14;
 
 export default function ClaimRecordScreen() {
   const { width, height } = useWindowDimensions();
-  const { hasRecord, hasLikeRecord } = useLocalSearchParams<{ hasRecord?: string; hasLikeRecord?: string }>();
+  const { hasRecord, hasLikeRecord, hasLikeClaim } = useLocalSearchParams<{ hasRecord?: string; hasLikeRecord?: string; hasLikeClaim?: string }>();
   const previewWidth = DESIGN_WIDTH + PHONE_BEZEL * 2;
   const previewHeight = DESIGN_HEIGHT + PHONE_BEZEL * 2;
   const scale = usePhonePreviewScale(width, height, previewWidth, previewHeight);
   const showClaimRecord = hasRecord === '1';
   const showLikeRecord = hasLikeRecord === '1';
-  const hasAnyRecord = showClaimRecord || showLikeRecord;
+  const showLikeClaim = hasLikeClaim === '1';
+  const hasAnyRecord = showClaimRecord || showLikeRecord || showLikeClaim;
 
   return (
     <View style={styles.root}>
@@ -56,6 +57,7 @@ export default function ClaimRecordScreen() {
                   <>
                     {showClaimRecord && <ClaimRecordCard />}
                     {showLikeRecord && <LikeReviewRecordCard />}
+                    {showLikeClaim && <LikeClaimRecordCard />}
                   </>
                 ) : (
                   <EmptyRecord />
@@ -99,6 +101,21 @@ function LikeReviewRecordCard() {
   );
 }
 
+function LikeClaimRecordCard() {
+  return (
+    <View style={styles.claimRecordCard}>
+      <View style={[styles.claimRecordIconWrap, styles.claimIconWrap]}>
+        <Feather name="credit-card" size={25} color="#03130B" />
+      </View>
+      <View style={styles.claimRecordInfo}>
+        <Text style={styles.claimRecordTitle}>作品点赞量50👍</Text>
+        <Text style={styles.claimRecordDesc}>周卡 💳 x 1</Text>
+      </View>
+      <Text style={styles.likeClaimStatus}>领取</Text>
+    </View>
+  );
+}
+
 function EmptyRecord() {
   return (
     <View style={styles.emptyCard}>
@@ -135,11 +152,13 @@ const styles = StyleSheet.create({
   claimRecordCard: { minHeight: 82, marginBottom: 12, borderRadius: 24, paddingHorizontal: 16, paddingVertical: 14, backgroundColor: 'rgba(236,255,244,0.96)', borderWidth: 1, borderColor: 'rgba(65,247,211,0.5)', flexDirection: 'row', alignItems: 'center', shadowColor: '#41F7D3', shadowOpacity: 0.26, shadowRadius: 16, shadowOffset: { width: 0, height: 9 } },
   claimRecordIconWrap: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#8AFFB8', alignItems: 'center', justifyContent: 'center' },
   reviewIconWrap: { backgroundColor: '#D9FF57' },
+  claimIconWrap: { backgroundColor: '#41F7D3' },
   claimRecordInfo: { flex: 1, marginLeft: 12 },
   claimRecordTitle: { color: '#04110B', fontSize: 18, fontWeight: '900' },
   claimRecordDesc: { marginTop: 5, color: '#0A8F46', fontSize: 15, fontWeight: '800' },
   claimRecordStatus: { color: '#B05AC9', fontSize: 15, fontWeight: '900' },
   reviewStatus: { color: '#0A8F46', fontSize: 15, fontWeight: '900' },
+  likeClaimStatus: { minWidth: 54, height: 32, borderRadius: 16, backgroundColor: '#39EF83', color: '#03130B', fontSize: 15, lineHeight: 32, textAlign: 'center', fontWeight: '900', overflow: 'hidden' },
   emptyCard: { height: 138, borderRadius: 26, padding: 22, backgroundColor: 'rgba(236,255,244,0.08)', borderWidth: 1, borderColor: 'rgba(65,247,211,0.28)', alignItems: 'center', justifyContent: 'center' },
   emptyTitle: { color: '#E8FFF2', fontSize: 21, fontWeight: '900' },
   emptyDesc: { marginTop: 10, color: '#8EA898', fontSize: 14, lineHeight: 21, fontWeight: '700', textAlign: 'center' },

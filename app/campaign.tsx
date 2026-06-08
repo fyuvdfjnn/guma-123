@@ -109,7 +109,7 @@ function CampaignTopBar({ dark = false, hasRecord = false, hasLikeRecord = false
       <Pressable style={[styles.campaignBackButton, dark && styles.campaignBackButtonLight]} onPress={closeCampaignToSettings}>
         <Feather name="chevron-left" size={34} color={dark ? '#232333' : '#FFFFFF'} />
       </Pressable>
-      <Pressable style={styles.claimRecordButton} onPress={() => router.push({ pathname: '/claim-record', params: { hasRecord: hasRecord ? '1' : '0', hasLikeRecord: hasLikeRecord ? '1' : '0' } })}>
+      <Pressable style={styles.claimRecordButton} onPress={() => router.push({ pathname: '/claim-record', params: { hasRecord: hasRecord ? '1' : '0', hasLikeRecord: hasLikeRecord ? '1' : '0', hasLikeClaim: hasLikeRecord ? '1' : '0' } })}>
         <Text style={[styles.claimRecordText, dark && styles.claimRecordTextDark]}>活动记录</Text>
       </Pressable>
     </View>
@@ -158,7 +158,10 @@ function RewardImpactVariant({ scrollTo, confirm }: { scrollTo?: string; confirm
   };
 
   const handleLikeRewardPress = () => {
-    if (likeRewardReviewing) return;
+    if (likeRewardReviewing) {
+      router.push({ pathname: '/claim-record', params: { hasRecord: hasClaimRecord ? '1' : '0', hasLikeRecord: '1', hasLikeClaim: '1' } });
+      return;
+    }
 
     setSubmitTarget('likes');
     scrollToSubmit();
@@ -185,8 +188,8 @@ function RewardImpactVariant({ scrollTo, confirm }: { scrollTo?: string; confirm
 
           <SectionRibbon text="活动奖励" />
           <View style={styles.rewardCardsRow}>
-            <RewardCard tag="发布作品" image="🪙×300" button={publishRewardClaimed ? '已领取' : publishRewardSubmitted ? '领取' : '前往'} onPress={handlePublishRewardPress} disabled={publishRewardClaimed} />
-            <RewardCard tag="50 个赞" image="💳x1" button={likeRewardReviewing ? '审核中' : '前往'} onPress={handleLikeRewardPress} disabled={likeRewardReviewing} />
+            <RewardCard tag="发布作品" image="🪙×50" button={publishRewardClaimed ? '已领取' : publishRewardSubmitted ? '领取' : '前往'} onPress={handlePublishRewardPress} disabled={publishRewardClaimed} />
+            <RewardCard tag="50 个赞" image="💳x1" button={likeRewardReviewing ? '查看' : '前往'} onPress={handleLikeRewardPress} />
             <RewardCard tag="100万播放" image="$1000" button="联系我们" onPress={() => router.push('/email-account')} />
           </View>
 
@@ -346,7 +349,7 @@ function ClaimRecordCard() {
         <Feather name="dollar-sign" size={24} color="#03130B" />
       </View>
       <View style={styles.claimRecordInfo}>
-        <Text style={styles.claimRecordTitle}>发布作品奖励   🪙×300</Text>
+        <Text style={styles.claimRecordTitle}>发布作品奖励   🪙×50</Text>
       </View>
       <Text style={styles.claimRecordStatus}>已领取</Text>
     </View>
@@ -374,7 +377,7 @@ function ClaimRewardModal({ onClose }: { onClose: () => void }) {
           <View style={styles.claimRewardPreview}>
             <View style={styles.claimRewardGlow} />
             <Text style={styles.claimRewardCoin}>🪙</Text>
-            <Text style={styles.claimRewardAmount}>×300</Text>
+            <Text style={styles.claimRewardAmount}>×50</Text>
           </View>
           <Pressable onPress={onClose}>
             <LinearGradient colors={['#37F27E', '#41F7D3', '#F8A3FF']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.claimAcceptButton}>
