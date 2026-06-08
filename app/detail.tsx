@@ -15,6 +15,7 @@ export default function DetailScreen() {
   const { width, height } = useWindowDimensions();
   const { image, backTo } = useLocalSearchParams<{ image?: string; type?: string; backTo?: string }>();
   const [isShareSheetVisible, setIsShareSheetVisible] = useState(false);
+  const [isHashtagModalVisible, setIsHashtagModalVisible] = useState(false);
   const previewWidth = DESIGN_WIDTH + PHONE_BEZEL * 2;
   const previewHeight = DESIGN_HEIGHT + PHONE_BEZEL * 2;
   const scale = usePhonePreviewScale(width, height, previewWidth, previewHeight);
@@ -89,7 +90,11 @@ export default function DetailScreen() {
                 </View>
                 <Text style={styles.noticeText}>作品72小时内有效，请及时保存。</Text>
               </View>
-              {isShareSheetVisible && <ShareSheet onClose={() => setIsShareSheetVisible(false)} />}
+              {isShareSheetVisible && <ShareSheet onClose={() => setIsShareSheetVisible(false)} onInstagramPress={() => {
+                setIsShareSheetVisible(false);
+                setIsHashtagModalVisible(true);
+              }} />}
+              {isHashtagModalVisible && <HashtagModal onClose={() => setIsHashtagModalVisible(false)} />}
             </SafeAreaView>
           </View>
         </View>
@@ -116,7 +121,7 @@ function ToolAction({ icon, labelTop, labelBottom }: { icon: keyof typeof Materi
   );
 }
 
-function ShareSheet({ onClose }: { onClose: () => void }) {
+function ShareSheet({ onClose, onInstagramPress }: { onClose: () => void; onInstagramPress: () => void }) {
   return (
     <View style={styles.shareSheet}>
       <View style={styles.shareSheetHeader}>
@@ -127,9 +132,34 @@ function ShareSheet({ onClose }: { onClose: () => void }) {
       </View>
       <View style={styles.shareSheetScroller}>
         <SharePlatform icon={<MaterialCommunityIcons name="music-note-eighth" size={31} color="#FFFFFF" />} label="TikTok" style={styles.tiktokPlatformIcon} onPress={() => router.push({ pathname: '/tiktok-preview', params: { image: FALLBACK_IMAGE } })} />
-        <SharePlatform icon={<Feather name="instagram" size={29} color="#FFFFFF" />} label="Instagram" style={styles.instagramPlatformIcon} />
+        <SharePlatform icon={<Feather name="instagram" size={29} color="#FFFFFF" />} label="Instagram" style={styles.instagramPlatformIcon} onPress={onInstagramPress} />
         <SharePlatform icon={<Feather name="youtube" size={31} color="#FFFFFF" />} label="YouTube" style={styles.youtubePlatformIcon} />
         <SharePlatform icon={<Text style={styles.xPlatformText}>𝕏</Text>} label="X" style={styles.xPlatformIcon} />
+      </View>
+    </View>
+  );
+}
+
+function HashtagModal({ onClose }: { onClose: () => void }) {
+  const handleCopy = async () => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText('#guma#gumaai');
+    }
+    onClose();
+  };
+
+  return (
+    <View style={styles.hashtagOverlay}>
+      <Pressable accessibilityLabel="关闭标签弹窗背景" style={styles.hashtagScrim} onPress={onClose} />
+      <View style={styles.hashtagCard}>
+        <View style={styles.hashtagIconWrap}>
+          <Feather name="instagram" size={31} color="#FFFFFF" />
+        </View>
+        <Text style={styles.hashtagTitle}>复制发布标签</Text>
+        <Text style={styles.hashtagText}>#guma#gumaai</Text>
+        <Pressable accessibilityLabel="复制标签" style={styles.copyButton} onPress={handleCopy}>
+          <Text style={styles.copyButtonText}>复制</Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -449,6 +479,73 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  hashtagOverlay: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    zIndex: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hashtagScrim: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: 'rgba(0,0,0,0.58)',
+  },
+  hashtagCard: {
+    width: 302,
+    minHeight: 238,
+    borderRadius: 30,
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+    backgroundColor: '#07130E',
+    borderWidth: 1,
+    borderColor: 'rgba(65,247,211,0.45)',
+    alignItems: 'center',
+    shadowColor: '#39EF83',
+    shadowOpacity: 0.35,
+    shadowRadius: 22,
+  },
+  hashtagIconWrap: {
+    width: 62,
+    height: 62,
+    borderRadius: 20,
+    backgroundColor: '#D83DBB',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hashtagTitle: {
+    marginTop: 18,
+    color: '#E8FFF2',
+    fontSize: 23,
+    fontWeight: '900',
+  },
+  hashtagText: {
+    marginTop: 18,
+    color: '#FFFFFF',
+    fontSize: 27,
+    fontWeight: '900',
+    letterSpacing: 0.3,
+  },
+  copyButton: {
+    marginTop: 24,
+    width: 156,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#39EF83',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  copyButtonText: {
+    color: '#04110B',
+    fontSize: 21,
+    fontWeight: '900',
   },
   noticeText: {
     marginTop: 11,
